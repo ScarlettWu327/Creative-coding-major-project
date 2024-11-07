@@ -495,14 +495,67 @@ function windowResized() {
   setup();
 }
 
-function keyPressed() {
-  if (keyCode === UP_ARROW) {
+let score = 0;
+let highScore = 0;
+
+// Initializing the game
+function startGame() {
+  score = 0;
+  highScore = getItem('highScore') || 0;
+  resetPatterns();
+}
+
+// Ending the game
+function endGame() {
+  noLoop();
+  highScore = max(highScore, score);
+  storeItem('highScore', highScore);
+  textAlign(CENTER, CENTER);
+  text(`Score: ${score}\nHigh Score: ${highScore}\nClick to restart`, width / 2, height / 2);
+}
+
+// Re-generate graph position after each click
+function resetPatterns() {
+  patterns.forEach(pattern => {
+    pattern.x = random(padding, width - padding);
+    pattern.y = random(padding, height - padding);
+    pattern.radius = max(10, pattern.radius - 5);
+  });
+}
+
+// Detecting mouse clicks
+function mousePressed() {
+  if (isLooping()) {
+    let hit = false;
     patterns.forEach(pattern => {
-      pattern.radius += 5;
+      if (dist(mouseX, mouseY, pattern.x, pattern.y) < pattern.radius) {
+        hit = true;
+        resetPatterns();
+        score += 1;
+      }
     });
-  } else if (keyCode === DOWN_ARROW) {
-    patterns.forEach(pattern => {
-      pattern.radius = max(10, pattern.radius - 5);
-    });
+    if (!hit) {
+      endGame();
+    }
+  } else {
+    startGame();
+    loop();
   }
+}
+
+// Displaying scores in the draw function
+function draw() {
+  background('#086487');
+  patterns.forEach(pattern => {
+    pattern.display();
+  });
+  drawCurvyConnections();
+  beads.forEach(bead => {
+    bead.display();
+  });
+
+  textSize(32);
+  textAlign(RIGHT, TOP);
+  fill(255);
+  text(`Score: ${score}`, width - 20, 20);
 }

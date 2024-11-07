@@ -494,3 +494,11 @@ function windowResized() {
   beads = [];
   setup();
 }
+
+function mousePressed() {
+  patterns.forEach(pattern => {
+    if (dist(mouseX, mouseY, pattern.x, pattern.y) < pattern.radius) {
+      pattern.colors.patternColors = color(random(255), random(255), random(255));
+    }
+  });
+}
